@@ -139,6 +139,18 @@ def test_coerce_column_value_bool_invalid() -> None:
         coerce_column_value(Flagged.active, "maybe")
 
 
+def test_coerce_column_value_enum() -> None:
+    class Color(enum.Enum):
+        RED = "red"
+
+    column = Column("color", Enum(Color))
+    assert coerce_column_value(column, "RED") is Color.RED
+    assert coerce_column_value(column, "red") is Color.RED
+
+    with pytest.raises(ValueError):
+        coerce_column_value(column, "blue")
+
+
 def test_serialize_import_value_for_form() -> None:
     assert serialize_import_value_for_form(False) == "false"
     assert serialize_import_value_for_form(True) == "true"

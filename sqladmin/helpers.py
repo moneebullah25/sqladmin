@@ -358,6 +358,12 @@ def coerce_column_value(column: Column, value: Any) -> Any:
         return type_.fromisoformat(value)
     if inspect.isclass(type_) and issubclass(type_, bool):
         return _coerce_bool(value)
+    if inspect.isclass(type_) and issubclass(type_, enum.Enum):
+        # Export writes the member name for non-StrEnum members.
+        try:
+            return type_[value]
+        except KeyError:
+            return type_(value)
     return type_(value)  # type: ignore[call-arg]
 
 
