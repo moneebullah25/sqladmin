@@ -24,7 +24,7 @@ from starlette.testclient import TestClient
 from sqladmin import Admin, ModelView, expose
 from sqladmin.exceptions import InvalidModelError
 from sqladmin.filters import AllUniqueStringValuesFilter
-from sqladmin.helpers import get_column_python_type
+from sqladmin.helpers import get_column_python_type, get_object_identifier
 from tests.common import sync_engine as engine
 
 pytestmark = pytest.mark.anyio
@@ -718,6 +718,8 @@ def test_sort_query_default_sort_pk_attribute_name() -> None:
     class ItemAdmin(ModelView, model=Item): ...
 
     assert ItemAdmin()._get_default_sort() == [("id_", False)]
+    assert ItemAdmin().get_list_columns() == ["id_"]
+    assert get_object_identifier(Item(id_=1)) == 1
 
     request = Request({"type": "http", "query_string": b""})
     stmt = ItemAdmin().sort_query(select(Item), request)

@@ -1382,7 +1382,9 @@ class ModelView(BaseView, metaclass=ModelViewMeta):
         return self._build_column_list(
             include=column_list,
             exclude=column_exclude_list,
-            defaults=[pk.name for pk in self.pk_columns],
+            defaults=[
+                self._mapper.get_property_by_column(pk).key for pk in self.pk_columns
+            ],
         )
 
     def get_details_columns(self) -> builtins.list[str]:
