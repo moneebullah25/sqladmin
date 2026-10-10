@@ -709,6 +709,21 @@ async def test_model_property_in_columns() -> None:
     assert await UserAdmin().get_prop_value(user, "name_with_id") == "batman - 1"
 
 
+def test_sort_query_default_sort_pk_attribute_name() -> None:
+    class Item(Base):
+        __tablename__ = "items_pk_attr"
+
+        id_ = Column("id", Integer, primary_key=True)
+
+    class ItemAdmin(ModelView, model=Item): ...
+
+    assert ItemAdmin()._get_default_sort() == [("id_", False)]
+
+    request = Request({"type": "http", "query_string": b""})
+    stmt = ItemAdmin().sort_query(select(Item), request)
+    assert "ORDER BY items_pk_attr.id ASC" in str(stmt)
+
+
 def test_sort_query() -> None:
     class AddressAdmin(ModelView, model=Address):
         column_sortable_list = ["id", "user.name", "user.profile.role"]
