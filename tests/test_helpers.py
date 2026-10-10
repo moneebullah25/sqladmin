@@ -19,6 +19,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql.type_api import TypeDecorator
 
+from sqladmin._types import StrEnum
 from sqladmin.helpers import (
     build_import_form_row,
     coerce_column_value,
@@ -157,7 +158,7 @@ def test_coerce_column_value_enum_collision() -> None:
         A = "B"
         B = "A"
 
-    class StrSwap(enum.StrEnum):
+    class StrSwap(StrEnum):
         A = "B"
         B = "A"
 

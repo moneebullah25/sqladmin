@@ -24,7 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import RelationshipProperty
 from starlette.datastructures import MultiDict
 
-from sqladmin._types import MODEL_PROPERTY, SESSION_MAKER
+from sqladmin._types import MODEL_PROPERTY, SESSION_MAKER, StrEnum
 
 T = TypeVar("T")
 
@@ -360,7 +360,7 @@ def coerce_column_value(column: Column, value: Any, enum_by_name: bool = False) 
         return _coerce_bool(value)
     if inspect.isclass(type_) and issubclass(type_, enum.Enum):
         # Export writes the member name for non-StrEnum members.
-        if enum_by_name and not issubclass(type_, enum.StrEnum):
+        if enum_by_name and not issubclass(type_, StrEnum):
             try:
                 return type_[value]
             except KeyError:
