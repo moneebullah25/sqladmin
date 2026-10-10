@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import enum
 import inspect
+import io
 import json
 import os
 import re
@@ -260,11 +261,11 @@ def parse_csv(
     if csv_content[:3] == b"\xef\xbb\xbf":
         csv_content = csv_content[3:]
     try:
-        _csv_content = csv_content.decode("utf-8").splitlines()
+        _csv_content = csv_content.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise ValueError("CSV file must be UTF-8 encoded.") from exc
 
-    reader = csv.DictReader(_csv_content, delimiter=delimiter)
+    reader = csv.DictReader(io.StringIO(_csv_content, newline=""), delimiter=delimiter)
     if not reader.fieldnames:
         raise ValueError("CSV file is missing a header row.")
 

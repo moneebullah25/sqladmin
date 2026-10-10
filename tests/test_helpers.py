@@ -246,6 +246,19 @@ def test_parse_csv_strips_utf8_bom() -> None:
     assert rows[0].get("name") == "Bob"
 
 
+def test_parse_csv_keeps_line_breaks_in_quoted_cells() -> None:
+    rows = parse_csv(b'a,b\r\n"x\ny\r\nz",2\r\n', ["a", "b"])
+    assert len(rows) == 1
+    assert rows[0].get("a") == "x\ny\r\nz"
+
+
+def test_parse_csv_does_not_split_rows_on_unicode_separators() -> None:
+    rows = parse_csv("a,b\nx\x0c\x85\u2028y,2\n".encode(), ["a", "b"])
+    assert len(rows) == 1
+    assert rows[0].get("a") == "x\x0c\x85\u2028y"
+    assert rows[0].get("b") == "2"
+
+
 def test_parse_csv_missing_header_row() -> None:
     with pytest.raises(ValueError, match="missing a header row"):
         parse_csv(b"", ["name"])
