@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import decimal
 import enum
 import inspect
 import json
@@ -360,7 +361,7 @@ def coerce_column_value(column: Column, value: Any) -> Any:
         return _coerce_bool(value)
     try:
         return type_(value)  # type: ignore[call-arg]
-    except ArithmeticError as exc:
+    except decimal.InvalidOperation as exc:
         # Decimal raises InvalidOperation, which is not a ValueError.
         raise ValueError(f"Invalid value {value!r}.") from exc
 
