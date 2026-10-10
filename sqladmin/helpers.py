@@ -348,7 +348,7 @@ def _object_identifier_parts(id_string: str, model: type) -> tuple[str, ...]:
     return tuple(v.replace(r"\;", ";").replace(r"\\", "\\") for v in values)
 
 
-def coerce_column_value(column: Column, value: Any) -> Any:
+def coerce_column_value(column: Column, value: Any, enum_by_name: bool = False) -> Any:
     """Coerce a value (typically from CSV import) to a column's Python type."""
     if not isinstance(value, str):
         return value
@@ -360,10 +360,12 @@ def coerce_column_value(column: Column, value: Any) -> Any:
         return _coerce_bool(value)
     if inspect.isclass(type_) and issubclass(type_, enum.Enum):
         # Export writes the member name for non-StrEnum members.
-        try:
-            return type_[value]
-        except KeyError:
-            return type_(value)
+        if enum_by_name and not issubclass(type_, enum.StrEnum):
+            try:
+                return type_[value]
+            except KeyError:
+                pass
+        return type_(value)
     return type_(value)  # type: ignore[call-arg]
 
 
@@ -440,7 +442,9 @@ def merge_import_row_data(
             continue
 
         try:
-            merged[column_name] = coerce_column_value(column, raw_value)
+            merged[column_name] = coerce_column_value(
+                column, raw_value, enum_by_name=True
+            )
         except (TypeError, ValueError):
             errors.setdefault(column_name, []).append(
                 f"Invalid value {raw_value!r} for column {column_name}."

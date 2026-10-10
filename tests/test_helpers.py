@@ -144,11 +144,29 @@ def test_coerce_column_value_enum() -> None:
         RED = "red"
 
     column = Column("color", Enum(Color))
-    assert coerce_column_value(column, "RED") is Color.RED
+    assert coerce_column_value(column, "RED", enum_by_name=True) is Color.RED
+    assert coerce_column_value(column, "red", enum_by_name=True) is Color.RED
     assert coerce_column_value(column, "red") is Color.RED
 
     with pytest.raises(ValueError):
-        coerce_column_value(column, "blue")
+        coerce_column_value(column, "blue", enum_by_name=True)
+
+
+def test_coerce_column_value_enum_collision() -> None:
+    class Swap(enum.Enum):
+        A = "B"
+        B = "A"
+
+    class StrSwap(enum.StrEnum):
+        A = "B"
+        B = "A"
+
+    column = Column("c", Enum(Swap))
+    assert coerce_column_value(column, "B", enum_by_name=True) is Swap.B
+    assert coerce_column_value(column, "B") is Swap.A
+
+    str_column = Column("s", Enum(StrSwap))
+    assert coerce_column_value(str_column, "B", enum_by_name=True) is StrSwap.A
 
 
 def test_serialize_import_value_for_form() -> None:
