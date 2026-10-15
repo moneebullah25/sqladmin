@@ -170,6 +170,18 @@ def test_coerce_column_value_enum_collision() -> None:
     assert coerce_column_value(str_column, "B", enum_by_name=True) is StrSwap.A
 
 
+def test_coerce_column_value_int_enum() -> None:
+    class Level(enum.IntEnum):
+        LOW = 1
+        HIGH = 2
+
+    column = Column("level", Enum(Level))
+    assert coerce_column_value(column, "HIGH", enum_by_name=True) is Level.HIGH
+    assert coerce_column_value(column, 1, enum_by_name=True) == 1
+    with pytest.raises(ValueError):
+        coerce_column_value(column, "2", enum_by_name=True)
+
+
 def test_serialize_import_value_for_form() -> None:
     assert serialize_import_value_for_form(False) == "false"
     assert serialize_import_value_for_form(True) == "true"
