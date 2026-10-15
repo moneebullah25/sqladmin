@@ -549,9 +549,7 @@ def is_async_session_maker(session_maker: SESSION_MAKER) -> bool:
 def default_encoder(obj: Any) -> Any:
     if hasattr(obj, "isoformat"):  # datetime-like
         return obj.isoformat()
-    from decimal import Decimal
-
-    if isinstance(obj, Decimal):
+    if isinstance(obj, decimal.Decimal):
         return float(obj)
 
     try:
